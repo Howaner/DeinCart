@@ -7,6 +7,7 @@ import de.howaner.DeinCart.util.FakeMinecart;
 import de.howaner.DeinCart.util.Route;
 import de.howaner.DeinCart.util.RoutePlayer;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +22,14 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftMinecart;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.RideableMinecart;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.Vector;
 
 public class CartManager {
 	private final DeinCartPlugin plugin;
@@ -137,7 +139,7 @@ public class CartManager {
 		meta.setDisplayName("§6Fahrt abbrechen.");
 		stack.setItemMeta(meta);
 		
-		player.getInventory().setItem(8, stack);
+		player.getInventory().setItem(0, stack);
 		player.updateInventory();
 		return user;
 	}
@@ -146,13 +148,16 @@ public class CartManager {
 		RoutePlayer user = this.getRoutePlayer(player);
 		if (user == null) return;
 		
-		user.getMinecart().setPassenger(null);
+		((CraftPlayer)player).getHandle().vehicle = null;
+		((CraftMinecart)user.getMinecart()).getHandle().passenger = null;
 		user.getMinecart().remove();
 		
-		if (finished) {
-			player.teleport(user.getRoute().getEndSpawn());
-		} else {
-			player.teleport(user.getRoute().getStartSpawn());
+		if (player.getHealth() > 0.0D) {
+			if (finished) {
+				player.teleport(user.getRoute().getEndSpawn());
+			} else {
+				player.teleport(user.getRoute().getStartSpawn());
+			}
 		}
 		
 		player.getInventory().setContents(user.getInventory());
@@ -340,7 +345,7 @@ public class CartManager {
 		
 		try {
 			config.save(routesFile);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			DeinCartPlugin.log.log(Level.SEVERE, "Can't save routes!", e);
 		}
 	}

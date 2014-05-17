@@ -3,18 +3,22 @@ package de.howaner.DeinCart.listener;
 import de.howaner.DeinCart.CartManager;
 import de.howaner.DeinCart.util.Route;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -87,6 +91,10 @@ public class DeinCartListener implements Listener {
 		Player player = event.getPlayer();
 		ItemStack item = event.getItem();
 		if (this.manager.isRouteCancelItem(item) && this.manager.isRoutePlayer(player)) {
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				Location loc = event.getClickedBlock().getLocation().add(0, 1, 0);
+				player.sendBlockChange(loc, loc.getBlock().getType(), loc.getBlock().getData());
+			}
 			this.manager.stopRoute(player, false);
 			event.setCancelled(true);
 		}
@@ -106,13 +114,52 @@ public class DeinCartListener implements Listener {
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		if (this.manager.isDeincartItem(event.getItemDrop().getItemStack())) {
 			event.getItemDrop().remove();
+			return;
+		}
+		
+		if (this.manager.isRoutePlayer(event.getPlayer())) {
+			ItemStack item = event.getItemDrop().getItemStack().clone();
+			event.getItemDrop().remove();
+			event.getPlayer().getInventory().setItem(0, item);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+		if (event.isCancelled()) return;
+		Player player = event.getPlayer();
+		if (this.manager.isRoutePlayer(player)) {
+			event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerDeath(PlayerDeathEvent event) {
+		Player player = event.getEntity();
+		
+		Iterator<ItemStack> itr = event.getDrops().iterator();
+		while (itr.hasNext()) {
+			ItemStack item = itr.next();
+			if (this.manager.isDeincartItem(item) || this.manager.isRouteCancelItem(item)) {
+				itr.remove();
+			}
+		}
+		
+		if (this.manager.isRoutePlayer(player)) {
+			event.getDrops().clear();
+			for (ItemStack item : this.manager.getRoutePlayer(player).getInventory()) {
+				if (item != null)
+					event.getDrops().add(item);
+				this.manager.stopRoute(player, false);
+			}
 		}
 	}
 	
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.isCancelled() || (event.getCurrentItem() == null) || !(event.getWhoClicked() instanceof Player)) return;
-		if (this.manager.isDeincartItem(event.getCurrentItem())) {
+		Player player = (Player) event.getWhoClicked();
+		if (this.manager.isDeincartItem(event.getCurrentItem()) || this.manager.isRoutePlayer(player)) {
 			event.setCancelled(true);
 		}
 	}
