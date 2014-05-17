@@ -1,0 +1,10 @@
+name: DeinCart
+version: 1.0
+description: Minecart Plugin for DeinCraft
+author: Howaner
+main: de.howaner.DeinCart.DeinCartPlugin
+
+commands:
+  route:
+    description: Deincart Routes verwalten
+    usage: '/route <create/remove/size/detect/setDirection/setStartSpawn/setEndSpawn/manageRails'
