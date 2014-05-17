@@ -360,49 +360,6 @@ public class FakeMinecart extends EntityMinecartRideable {
 			setPosition(this.locX, this.locY + aint[1][1], this.locZ);
 		
 		i();
-		Vec3D vec3d1 = a(this.locX, this.locY, this.locZ);
-		
-		if ((vec3d1 != null) && (vec3d != null)) {
-			double d14 = (vec3d.b - vec3d1.b) * 0.05D;
-			
-			d6 = Math.sqrt(this.motX * this.motX + this.motZ * this.motZ);
-			if (d6 > 0.0D) {
-				this.motX = (this.motX / d6 * (d6 + d14));
-				this.motZ = (this.motZ / d6 * (d6 + d14));
-			}
-			
-			setPosition(this.locX, vec3d1.b, this.locZ);
-		}
-		
-		int i1 = MathHelper.floor(this.locX);
-		int j1 = MathHelper.floor(this.locZ);
-		
-		if ((i1 != i) || (j1 != k)) {
-			d6 = Math.sqrt(this.motX * this.motX + this.motZ * this.motZ);
-			this.motX = (d6 * (i1 - i));
-			this.motZ = (d6 * (j1 - k));
-		}
-		
-		if (flag) {
-			double d15 = Math.sqrt(this.motX * this.motX + this.motZ * this.motZ);
-			
-			if (d15 > 0.01D) {
-				double d16 = 0.06D;
-				
-				this.motX += this.motX / d15 * d16;
-				this.motZ += this.motZ / d15 * d16;
-			} else if (l == 1) {
-				if (this.world.getType(i - 1, j, k).r())
-					this.motX = 0.02D;
-				else if (this.world.getType(i + 1, j, k).r())
-					this.motX = -0.02D;
-			} else if (l == 0) {
-				if (this.world.getType(i, j, k - 1).r())
-					this.motZ = 0.02D;
-				else if (this.world.getType(i, j, k + 1).r())
-					this.motZ = -0.02D;
-			}
-		}
 	}
 	
 	@Override
