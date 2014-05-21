@@ -12,7 +12,6 @@ import net.minecraft.server.v1_7_R3.EntityMinecartAbstract;
 import net.minecraft.server.v1_7_R3.EntityMinecartRideable;
 import net.minecraft.server.v1_7_R3.EntityPlayer;
 import net.minecraft.server.v1_7_R3.MathHelper;
-import net.minecraft.server.v1_7_R3.Vec3D;
 import net.minecraft.server.v1_7_R3.World;
 import net.minecraft.server.v1_7_R3.WorldServer;
 import org.bukkit.Effect;
@@ -29,7 +28,7 @@ public class FakeMinecart extends EntityMinecartRideable {
 	
 	public FakeMinecart(World world, double x, double y, double z) {
 		super(world, x, y, z);
-		this.maxSpeed = 0.6F;
+		this.maxSpeed = 0.45F;
 	}
 	
 	@Override
@@ -195,7 +194,7 @@ public class FakeMinecart extends EntityMinecartRideable {
 					DeinCartPlugin.getManager().stopRoute((Player)this.passenger.getBukkitEntity(), true);
 				}
 				
-				this.world.getWorld().playEffect(new Location(this.world.getWorld(), oldX, oldY, oldZ), Effect.SMOKE, 2);
+				this.world.getWorld().playEffect(new Location(this.world.getWorld(), prevX, prevY, prevZ), Effect.SMOKE, 2);
 			}
 		}
 	}
@@ -203,7 +202,6 @@ public class FakeMinecart extends EntityMinecartRideable {
 	@Override
 	public void a(int i, int j, int k, double d0, double d1, Block block, int l) {
 		this.fallDistance = 0.0F;
-		Vec3D vec3d = a(this.locX, this.locY, this.locZ);
 		
 		this.locY = j;
 		boolean flag = false;
